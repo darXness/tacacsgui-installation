@@ -331,3 +331,61 @@ echo -e "\033[0;33m#############################################################
 
 
 # END
+# -------------------------------------------------------
+# PHP 8.3 / Ubuntu 24.04 composer.json compatibility fix
+# Applied automatically after tacacsgui clone
+# -------------------------------------------------------
+fix_composer_php83() {
+    echo "[+] Applying PHP 8.3 composer.json compatibility fix..."
+    cat > /opt/tacacsgui/web/api/composer.json << 'COMPOSEREOF'
+{
+    "require": {
+        "slim/slim": "^3.12",
+        "illuminate/database": "^8.0",
+        "respect/validation": "^1.1",
+        "slim/csrf": "^1.3",
+        "spomky-labs/otphp": "^10.0",
+        "bacon/bacon-qr-code": "^2.0",
+        "irazasyed/telegram-bot-sdk": "^3.0",
+        "php-smpp/php-smpp": "^1.2",
+        "doctrine/dbal": "^3.0",
+        "phpmailer/phpmailer": "^6.0",
+        "guzzlehttp/guzzle": "^7.0",
+        "adldap2/adldap2": "^10.0",
+        "symfony/yaml": "^5.0",
+        "tuupola/slim-jwt-auth": "^3.0",
+        "php": ">=8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "tgui\\": "app"
+        }
+    },
+    "repositories": {
+        "packagist": { "url": "https://packagist.org", "type": "composer" }
+    },
+    "audit": {
+        "abandoned": "ignore",
+        "ignore": ["PKSA-y2cr-5h3j-g3ys"]
+    },
+    "config": {
+        "audit": {
+            "block-insecure": false
+        }
+    }
+}
+COMPOSEREOF
+
+    echo "[+] Running composer update for PHP 8.3..."
+    sudo -u www-data composer update \
+        --no-dev \
+        --ignore-platform-reqs \
+        --no-audit \
+        -W \
+        --working-dir=/opt/tacacsgui/web/api
+
+    chown -R www-data:www-data /opt/tacacsgui/web/
+    echo "[+] Composer fix applied successfully."
+}
+
+fix_composer_php83
